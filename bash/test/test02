@@ -1,0 +1,17 @@
+#!/bin/bash
+
+SYMBOL="BTC-USD"
+START=$(date -d "2 years ago" +%s)
+END=$(date +%s)
+RANGE=120
+
+curl -sS -L -A "Mozilla/5.0" \
+"https://query1.finance.yahoo.com/v8/finance/chart/${SYMBOL}?range=${RANGE}d&interval=1d" \
+| jq -r '
+  .chart.result[0] as $r
+  | ($r.timestamp // []) as $t
+  | ($r.indicators.quote[0]) as $q
+  | "ts,open,high,low,close,volume",
+    (range(0; ($t|length)) |
+      "\($t[.]),\($q.open[.]),\($q.high[.]),\($q.low[.]),\($q.close[.]),\($q.volume[.])"
+    )' > tmp/${SYMBOL}.daily.csv

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+. secret/secret.conf
+
+TICKER="BTC"
+
+UUID=$(date +%s%N | sha256sum | head -c32)
+
+curl -X GET "https://public-api.etoro.com/api/v1/market-data/search?internalSymbolFull=$TICKER" \
+  -H "x-api-key: $APIKEY" \
+  -H "x-user-key: $SECRETKEY" \
+  -H "x-request-id: $UUID" > tmp/$TICKER.$UUID.json
+
+# all'interno degli items trovo l'item che ha internalSymbolFull uguale a BTC
+cat tmp/$TICKER.$UUID.json | jq ".items[] | select(.internalSymbolFull==\"$TICKER\")" > tmp/$TICKER.$UUID.result.json
+
+# prelevo il campo currentRate
+cat tmp/$TICKER.$UUID.result.json | jq '.currentRate' > tmp/$TICKER.$UUID.currentRate.json
