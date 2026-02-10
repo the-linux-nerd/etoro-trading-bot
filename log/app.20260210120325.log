@@ -1,6 +1,0 @@
-2026-02-10 12:03:25,839 [INFO] db.py: avvio /home/fabio/Progetti/etoro-api/app/db.py 2026-02-10 12:03:25.839641
-2026-02-10 12:03:25,839 [INFO] db.py: esecuzione main
-2026-02-10 12:03:25,839 [INFO] db.py: azione richiesta: init
-2026-02-10 12:03:25,839 [INFO] db.py: connessione al database avvenuta con successo
-2026-02-10 12:03:25,851 [INFO] db.py: database inizializzato con successo
-2026-02-10 12:03:25,851 [INFO] db.py: fine /home/fabio/Progetti/etoro-api/app/db.py 2026-02-10 12:03:25.851685
