@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./app/db.py -a open -s BTC -d "2024-06-01" -p 50000 -z 1

@@ -10,24 +10,29 @@ from datetime import datetime
 
 # librerie del software
 import lib.db as db
+import lib.etoro as etoro
+import lib.utils as utils
 
-# funzione principale
+# CONFIGURAZIONE
+config = utils.read_config()
+
+# FUNZIONI
 def main():
-    
+
     # log
     logger.info("esecuzione main")
     logger.info("azione richiesta: " + args.azione)
+    logger.info("simbolo richiesto: " + args.symbol)
 
-    # se l'azione richiesta è init
-    if args.azione == "init":
-
-        # inizializzazione del database
-        db.init()
-
-    elif args.azione == "open":
-
-        # apertura della posizione
-        db.open_position( args.symbol, args.size, args.data, args.price )
+    # esecuzione dell'azione richiesta
+    if args.azione == "find_instrument_id":
+        instrument_id = etoro.find_instrument_id( args.symbol )
+        if instrument_id:
+            logger.info(f"ID dello strumento {args.symbol}: {instrument_id}")
+        else:
+            logger.warning(f"strumento {args.symbol} non trovato")
+    else:
+        logger.error(f"azione {args.azione} non riconosciuta")
 
 # esecuzione del main
 if __name__ == "__main__":
@@ -36,12 +41,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # configurazione parser argomenti
-    parser.add_argument("-a", "--azione", help="azione da compiere (list, init, open)", type=str, required=True, choices=["list", "init", "open"])
-    parser.add_argument("-d", "--data", help="data di lavoro (YYYY-MM-DD)", type=str)
-    parser.add_argument("-s", "--symbol", help="simbolo dello strumento finanziario", type=str)
-    parser.add_argument("-p", "--price", help="prezzo di acquisto o vendita", type=float)
-    parser.add_argument("-z", "--size", help="dimensione della posizione", type=float)
-    parser.add_argument("-q", "--qty", help="quantità della posizione", type=float)
+    parser.add_argument("-a", "--azione", help="azione da compiere (find_instrument_id)", type=str, required=True, choices=["find_instrument_id"])
+    parser.add_argument("-s", "--symbol", help="simbolo dello strumento su cui operare (es. AAPL)", type=str, required=True)
     parser.add_argument("-v", "--verbose", help="aumenta la verbosità", action="store_true")
 
     # parsing degli argomenti

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./app/etoro.py -a find_instrument_id -s BTC
