@@ -108,3 +108,23 @@ def list_open_positions():
             print( dict(row) )
     except sqlite3.Error as e:
         print( e )
+
+# ottenimento del prezzo di uno strumento finanziario in una data specifica, se la data è None, ottengo il prezzo attuale
+def get_price( symbol, date = None ):
+    
+    # interrogo Yahoo Finance per ottenere il prezzo dello strumento finanziario
+    try:
+        import yfinance as yf
+        ticker = yf.Ticker( symbol )
+        if date:
+            data = ticker.history( start=date, end=date )
+            if not data.empty:
+                price = data["Close"].iloc[0]
+                print( f"prezzo di {symbol} in data {date}: {price}" )
+            else:
+                print( f"nessun dato disponibile per {symbol} in data {date}" )
+        else:
+            price = ticker.info["regularMarketPrice"]
+            print( f"prezzo attuale di {symbol}: {price}" )
+    except Exception as e:
+        print( e )

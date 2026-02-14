@@ -1,3 +1,5 @@
+venv/
+app/lib/__pycache__/
 secret/
 log/
 data/
