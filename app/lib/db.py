@@ -3,6 +3,7 @@ from datetime import datetime
 import sys
 import os
 import sqlite3
+import yfinance as yf
 
 # VARIABILI GLOBALI
 database = 'data/mpt.db'
@@ -25,7 +26,7 @@ def init():
         conn = sqlite3.connect( database )
         cursor = conn.cursor()
         cursor.execute('''CREATE TABLE IF NOT EXISTS symbols
-            ([symbol] TEXT PRIMARY KEY, [name] TEXT, [etoro_id] TEXT)''')
+            ([symbol] TEXT PRIMARY KEY, [name] TEXT, [etoro_id] TEXT, [yfinance_symbol] TEXT)''')
         cursor.execute('''CREATE TABLE IF NOT EXISTS positions
             ([id] INTEGER PRIMARY KEY AUTOINCREMENT, [etoro_id] TEXT, [symbol] TEXT, [opened] TEXT, [buy_price] NUMERIC, [size] NUMERIC, [closed] TEXT, [sell_price] NUMERIC, [profit] NUMERIC)''')
         cursor.execute('''CREATE TABLE IF NOT EXISTS balance
@@ -114,7 +115,6 @@ def get_price( symbol, date = None ):
     
     # interrogo Yahoo Finance per ottenere il prezzo dello strumento finanziario
     try:
-        import yfinance as yf
         ticker = yf.Ticker( symbol )
         if date:
             data = ticker.history( start=date, end=date )
@@ -128,3 +128,16 @@ def get_price( symbol, date = None ):
             print( f"prezzo attuale di {symbol}: {price}" )
     except Exception as e:
         print( e )
+
+# aggiungo uno strumento finanziario al database
+def write_instrument_id_to_db( symbol, name, etoro_id, yahoo_finance_symbol ):
+
+    # query al database
+    try:
+        conn = sqlite3.connect( database )
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR REPLACE INTO symbols (symbol, name, etoro_id, yfinance_symbol) VALUES (?, ?, ?, ?)", (symbol, name, etoro_id, yahoo_finance_symbol))
+        conn.commit()
+    except sqlite3.Error as e:
+        print( e )
+        

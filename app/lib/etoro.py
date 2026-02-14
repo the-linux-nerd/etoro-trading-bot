@@ -29,7 +29,7 @@ def api_get( endpoint ):
     return response.json()
 
 # trova l'ID di uno strumento a partire dal suo simbolo
-def find_instrument_id( symbol ):
+def get_id( symbol ):
     
     # provo a recuperare l'ID dello strumento dal database
     instrument_id = db.get_instrument_id_from_db( symbol )
@@ -55,6 +55,3 @@ def find_instrument_id( symbol ):
                 if item.get("internalSymbolFull") == symbol:
                     db.write_instrument_id_to_db( symbol, item.get("internalInstrumentDisplayName"), item.get("internalInstrumentId") )
                     return item.get("internalInstrumentId")
-
-    pass
-

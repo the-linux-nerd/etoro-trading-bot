@@ -25,8 +25,8 @@ def main():
     logger.info("simbolo richiesto: " + args.symbol)
 
     # esecuzione dell'azione richiesta
-    if args.azione == "find_instrument_id":
-        instrument_id = etoro.find_instrument_id( args.symbol )
+    if args.azione == "get_id":
+        instrument_id = etoro.get_id( args.symbol )
         if instrument_id:
             logger.info(f"ID dello strumento {args.symbol}: {instrument_id}")
         else:
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # configurazione parser argomenti
-    parser.add_argument("-a", "--azione", help="azione da compiere (find_instrument_id)", type=str, required=True, choices=["find_instrument_id"])
+    parser.add_argument("-a", "--azione", help="azione da compiere (get_id)", type=str, required=True, choices=["get_id"])
     parser.add_argument("-s", "--symbol", help="simbolo dello strumento su cui operare (es. AAPL)", type=str, required=True)
     parser.add_argument("-v", "--verbose", help="aumenta la verbosità", action="store_true")
 

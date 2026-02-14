@@ -48,7 +48,20 @@ def main():
     elif args.azione == "getprice":
 
         # ottenimento del prezzo
-        db.get_price( args.symbol, args.data )
+        if args.symbol and args.data:
+            db.get_price( args.symbol, args.data )
+        elif args.symbol:
+            db.get_price( args.symbol )
+        else:
+            logger.error("per ottenere il prezzo di uno strumento finanziario sono necessari i parametri: symbol, data (opzionale)")
+
+    elif args.azione == "add_symbol":
+        
+        # aggiunta di uno strumento finanziario al database
+        if args.symbol and args.name and args.etoro_id and args.yahoo_finance_symbol:
+            db.write_instrument_id_to_db( args.symbol, args.name, args.etoro_id, args.yahoo_finance_symbol )
+        else:
+            logger.error("per aggiungere uno strumento finanziario al database sono necessari i parametri: symbol, name, etoro_id, yahoo_finance_symbol")
 
 # esecuzione del main
 if __name__ == "__main__":
@@ -57,9 +70,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # configurazione parser argomenti
-    parser.add_argument("-a", "--azione", help="azione da compiere (list_open, list_closed, init, open, close, getprice)", type=str, required=True, choices=["list_open", "list_closed", "init", "open", "close", "getprice"])
+    parser.add_argument("-a", "--azione", help="azione da compiere (list_open, add_symbol, list_closed, init, open, close, getprice)", type=str, required=True, choices=["list_open", "list_closed", "init", "open", "close", "getprice", "add_symbol"])
     parser.add_argument("-d", "--data", help="data di lavoro (YYYY-MM-DD)", type=str)
     parser.add_argument("-s", "--symbol", help="simbolo dello strumento finanziario", type=str)
+    parser.add_argument("-y", "--yahoo-finance-symbol", help="simbolo dello strumento finanziario su Yahoo Finance", type=str)
     parser.add_argument("-p", "--price", help="prezzo di acquisto o vendita", type=float)
     parser.add_argument("-z", "--size", help="dimensione della posizione", type=float)
     parser.add_argument("-q", "--qty", help="quantità della posizione", type=float)
