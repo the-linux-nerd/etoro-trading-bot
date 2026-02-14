@@ -75,3 +75,36 @@ def open_position( symbol, size, date_opened = None, buy_price = None, etoro_id 
         conn.commit()
     except sqlite3.Error as e:
         print( e )
+
+# chiudo una posizione sul database
+def close_position( id, date_closed = None, sell_price = None ):
+    
+    # query al database
+    try:
+        conn = sqlite3.connect( database )
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM positions WHERE id = ?", (id,))
+        row = cursor.fetchone()
+        if row:
+            profit = (sell_price - row["buy_price"]) * row["size"]
+            cursor.execute("UPDATE positions SET closed = ?, sell_price = ?, profit = ? WHERE id = ?", (date_closed, sell_price, profit, id))
+            conn.commit()
+        else:
+            print( f"posizione con id {id} non trovata" )
+    except sqlite3.Error as e:
+        print( e )
+
+# elenco le posizioni aperte
+def list_open_positions():
+    
+    # query al database
+    try:
+        conn = sqlite3.connect( database )
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM positions WHERE closed IS NULL")
+        rows = cursor.fetchall()
+        for row in rows:
+            print( dict(row) )
+    except sqlite3.Error as e:
+        print( e )

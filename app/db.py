@@ -26,8 +26,24 @@ def main():
 
     elif args.azione == "open":
 
-        # apertura della posizione
-        db.open_position( args.symbol, args.size, args.data, args.price )
+        # se sono presenti tutti i parametri necessari
+        if args.symbol and args.size and args.data and args.price:
+            db.open_position( args.symbol, args.size, args.data, args.price )
+        else:
+            logger.error("per aprire una posizione sono necessari i parametri: symbol, size, data, price")
+
+    elif args.azione == "close":
+
+        # se sono presenti tutti i parametri necessari
+        if args.id and args.data and args.price:
+            db.close_position( args.id, args.data, args.price )
+        else:
+            logger.error("per chiudere una posizione sono necessari i parametri: id, data, price")
+
+    elif args.azione == "list_open":
+        
+        # elenco posizioni aperte
+        db.list_open_positions()
 
     elif args.azione == "getprice":
 
@@ -41,7 +57,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # configurazione parser argomenti
-    parser.add_argument("-a", "--azione", help="azione da compiere (list, init, open, getprice)", type=str, required=True, choices=["list", "init", "open", "getprice"])
+    parser.add_argument("-a", "--azione", help="azione da compiere (list_open, list_closed, init, open, close, getprice)", type=str, required=True, choices=["list_open", "list_closed", "init", "open", "close", "getprice"])
     parser.add_argument("-d", "--data", help="data di lavoro (YYYY-MM-DD)", type=str)
     parser.add_argument("-s", "--symbol", help="simbolo dello strumento finanziario", type=str)
     parser.add_argument("-p", "--price", help="prezzo di acquisto o vendita", type=float)
