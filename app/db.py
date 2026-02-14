@@ -29,6 +29,11 @@ def main():
         # apertura della posizione
         db.open_position( args.symbol, args.size, args.data, args.price )
 
+    elif args.azione == "getprice":
+
+        # ottenimento del prezzo
+        db.get_price( args.symbol, args.data )
+
 # esecuzione del main
 if __name__ == "__main__":
 
@@ -36,7 +41,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # configurazione parser argomenti
-    parser.add_argument("-a", "--azione", help="azione da compiere (list, init, open)", type=str, required=True, choices=["list", "init", "open"])
+    parser.add_argument("-a", "--azione", help="azione da compiere (list, init, open, getprice)", type=str, required=True, choices=["list", "init", "open", "getprice"])
     parser.add_argument("-d", "--data", help="data di lavoro (YYYY-MM-DD)", type=str)
     parser.add_argument("-s", "--symbol", help="simbolo dello strumento finanziario", type=str)
     parser.add_argument("-p", "--price", help="prezzo di acquisto o vendita", type=float)
