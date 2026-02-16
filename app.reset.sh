@@ -1,4 +1,4 @@
 #!/bin/bash
 
-rm -rf data/mpt.db
+rm -rf data/*.sqlite
 rm -rf log/*.log

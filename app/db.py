@@ -10,90 +10,83 @@ from datetime import datetime
 
 # librerie del software
 import lib.db as db
+import lib.arguments as arguments
+import lib.logs as logs
 
 # funzione principale
 def main():
     
     # log
-    logger.info("esecuzione main")
-    logger.info("azione richiesta: " + args.azione)
+    logger.info("esecuzione main, azione richiesta: " + args.azione)
 
-    # se l'azione richiesta è init
+    # inizializzazione del database
     if args.azione == "init":
-
-        # inizializzazione del database
         db.init()
 
-    elif args.azione == "open":
+    # elenco posizioni aperte
+    elif args.azione == "list_open":
+        positions = db.list_open_positions()
+        for position in positions:
+            print( dict(position) )
 
-        # se sono presenti tutti i parametri necessari
+    # elenco posizioni chiuse
+    elif args.azione == "list_closed":
+        positions = db.list_closed_positions()
+        for position in positions:
+            print( dict(position) )
+
+    # apertura di una posizione
+    elif args.azione == "open":
         if args.symbol and args.size and args.data and args.price:
             db.open_position( args.symbol, args.size, args.data, args.price )
+        elif args.symbol and args.size and args.yf_symbol:
+            db.open_position( args.symbol, args.size, yf_symbol = args.yf_symbol )
         else:
-            logger.error("per aprire una posizione sono necessari i parametri: symbol, size, data, price")
+            logger.error("per aprire una posizione sono necessari i parametri: symbol, size, yf_symbol, data (opzionale), price (opzionale)")
 
+    # chiusura di una posizione
     elif args.azione == "close":
-
-        # se sono presenti tutti i parametri necessari
         if args.id and args.data and args.price:
             db.close_position( args.id, args.data, args.price )
+        elif args.id:
+            db.close_position( args.id )
         else:
-            logger.error("per chiudere una posizione sono necessari i parametri: id, data, price")
+            logger.error("per chiudere una posizione sono necessari i parametri: id, data (opzionale), price (opzionale)")
 
-    elif args.azione == "list_open":
-        
-        # elenco posizioni aperte
-        db.list_open_positions()
-
+    # ottenimento del prezzo di uno strumento
     elif args.azione == "getprice":
-
-        # ottenimento del prezzo
         if args.symbol and args.data:
-            db.get_price( args.symbol, args.data )
+            price = db.get_price( args.symbol, args.data )
+            print( f"prezzo di {args.symbol} in data {args.data}: {price}" )
         elif args.symbol:
-            db.get_price( args.symbol )
+            price = db.get_price( args.symbol )
+            print( f"prezzo attuale di {args.symbol}: {price}" )
         else:
             logger.error("per ottenere il prezzo di uno strumento finanziario sono necessari i parametri: symbol, data (opzionale)")
 
+    # aggiunta di uno strumento finanziario al database
     elif args.azione == "add_symbol":
-        
-        # aggiunta di uno strumento finanziario al database
-        if args.symbol and args.name and args.etoro_id and args.yahoo_finance_symbol:
-            db.write_instrument_id_to_db( args.symbol, args.name, args.etoro_id, args.yahoo_finance_symbol )
+        if args.symbol and args.name and args.etoro_id and args.yf_symbol:
+            db.add_symbol( args.symbol, args.name, args.etoro_id, args.yf_symbol )
+        elif args.symbol and args.name and args.yf_symbol:
+            db.add_symbol( args.symbol, args.name, yf_symbol = args.yf_symbol )
         else:
-            logger.error("per aggiungere uno strumento finanziario al database sono necessari i parametri: symbol, name, etoro_id, yahoo_finance_symbol")
+            logger.error("per aggiungere uno strumento finanziario al database sono necessari i parametri: symbol, name, etoro_id, yf_symbol")
+
+    # elenco degli strumenti finanziari presenti nel database
+    elif args.azione == "list_symbols":
+        symbols = db.list_symbols()
+        for symbol in symbols:
+            print( dict(symbol) )
 
 # esecuzione del main
 if __name__ == "__main__":
 
-    # creazione parser argomenti
-    parser = argparse.ArgumentParser()
+    # gestione degli argomenti da linea di comando
+    args = arguments.init_arguments()
 
-    # configurazione parser argomenti
-    parser.add_argument("-a", "--azione", help="azione da compiere (list_open, add_symbol, list_closed, init, open, close, getprice)", type=str, required=True, choices=["list_open", "list_closed", "init", "open", "close", "getprice", "add_symbol"])
-    parser.add_argument("-d", "--data", help="data di lavoro (YYYY-MM-DD)", type=str)
-    parser.add_argument("-s", "--symbol", help="simbolo dello strumento finanziario", type=str)
-    parser.add_argument("-y", "--yahoo-finance-symbol", help="simbolo dello strumento finanziario su Yahoo Finance", type=str)
-    parser.add_argument("-p", "--price", help="prezzo di acquisto o vendita", type=float)
-    parser.add_argument("-z", "--size", help="dimensione della posizione", type=float)
-    parser.add_argument("-q", "--qty", help="quantità della posizione", type=float)
-    parser.add_argument("-v", "--verbose", help="aumenta la verbosità", action="store_true")
-
-    # parsing degli argomenti
-    args = parser.parse_args()
-
-    # creazione logger
-    logger = logging.getLogger(__name__)
-
-    # informazioni da inserire nei log
-    FORMAT = '%(asctime)s [%(levelname)s] %(filename)s: %(message)s'
-
-    # configurazione del logger
-    logging.basicConfig(filename=f'log/app.{datetime.now().strftime("%Y%m%d%H%M%S")}.log', encoding='utf-8', format=FORMAT, level=logging.DEBUG)
-
-    # versione verbosa
-    if args.verbose:
-        logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+    # inizializzazione del logger
+    logger = logs.init_logger( args.verbose )
 
     # log
     logger.info(f"avvio {__file__} {datetime.now()}")

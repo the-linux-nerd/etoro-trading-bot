@@ -53,5 +53,4 @@ def get_id( symbol ):
             # cerco l'item che ha internalSymbolFull == symbol
             for item in dati["items"]:
                 if item.get("internalSymbolFull") == symbol:
-                    db.write_instrument_id_to_db( symbol, item.get("internalInstrumentDisplayName"), item.get("internalInstrumentId") )
                     return item.get("internalInstrumentId")

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+python3 app/db.py -a init
+python3 app/db.py -a add_symbol -s BTC -y BTC-USD -n Bitcoin
+python3 app/db.py -a list_symbols
+python3 app/db.py -a open -s BTC -y BTC-USD -z 1000
+python3 app/db.py -a list_open
+
+sleep 60
+
+python3 app/db.py -a close -i 1
+python3 app/db.py -a list_closed
