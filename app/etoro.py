@@ -21,8 +21,6 @@ def main():
 
     # log
     logger.info("esecuzione main")
-    logger.info("azione richiesta: " + args.azione)
-    logger.info("simbolo richiesto: " + args.symbol)
 
     # esecuzione dell'azione richiesta
     if args.azione == "get_id":
@@ -31,6 +29,10 @@ def main():
             logger.info(f"ID dello strumento {args.symbol}: {instrument_id}")
         else:
             logger.warning(f"strumento {args.symbol} non trovato")
+    elif args.azione == "open":
+        etoro.open_position( args.symbol, args.size )
+    elif args.azione == "close":
+        etoro.close_position( args.id )
     else:
         logger.error(f"azione {args.azione} non riconosciuta")
 
@@ -41,8 +43,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # configurazione parser argomenti
-    parser.add_argument("-a", "--azione", help="azione da compiere (get_id)", type=str, required=True, choices=["get_id"])
-    parser.add_argument("-s", "--symbol", help="simbolo dello strumento su cui operare (es. AAPL)", type=str, required=True)
+    parser.add_argument("-a", "--azione", help="azione da compiere (get_id, open, close)", type=str, required=True, choices=["get_id", "open", "close"])
+    parser.add_argument("-s", "--symbol", help="simbolo dello strumento su cui operare (es. AAPL)", type=str)
+    parser.add_argument("-z", "--size", help="dimensione della posizione (necessaria per open)", type=float)
+    parser.add_argument("-d", "--data", help="data da usare per ottenere il prezzo (necessaria per getprice)", type=str)
+    parser.add_argument("-i", "--id", help="ID della posizione da chiudere (necessaria per close)", type=int)
     parser.add_argument("-v", "--verbose", help="aumenta la verbosità", action="store_true")
 
     # parsing degli argomenti

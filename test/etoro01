@@ -1,0 +1,11 @@
+#!/bin/bash
+
+. secret/secret.conf
+
+UUID=$(date +%s%N | sha256sum | head -c32)
+
+curl --request GET \
+  --url "https://public-api.etoro.com/api/v1/trading/info/demo/orders/$1" \
+  --header "x-api-key: $APIKEY" \
+  --header "x-request-id: $UUID" \
+  --header "x-user-key: $SECRETKEY"

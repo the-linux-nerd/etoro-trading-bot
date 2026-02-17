@@ -93,10 +93,10 @@ def add_symbol( symbol, name, yf_symbol = None, etoro_id = None ):
                   (symbol, name, etoro_id, yf_symbol))
 
 # apro una posizione sul database
-def open_position( symbol, size, date_opened = None, buy_price = None, etoro_id = None, yf_symbol = None ):
+def open_position( symbol, size, units = None, date_opened = None, buy_price = None, etoro_id = None, yf_symbol = None ):
     
     # log
-    logging.debug(f"{__name__}: apro posizione su {symbol} - size: {size}, date_opened: {date_opened}, buy_price: {buy_price}, etoro_id: {etoro_id}, yf_symbol: {yf_symbol}")
+    logging.debug(f"{__name__}: apro posizione su {symbol} - size: {size}, units: {units}, date_opened: {date_opened}, buy_price: {buy_price}, etoro_id: {etoro_id}, yf_symbol: {yf_symbol}")
 
     # se non è specificata una data, uso data e ora attuali
     if not date_opened:
@@ -112,15 +112,16 @@ def open_position( symbol, size, date_opened = None, buy_price = None, etoro_id 
         logging.warning(f"{__name__}: prezzo di acquisto non specificato e simbolo Yahoo Finance non fornito")
 
     # calcolo le unità acquistate in base alla dimensione della posizione e al prezzo di acquisto
-    units = size / buy_price if buy_price > 0 else 0
-    logging.debug(f"{__name__}: unità acquistate: {units} (size: {size}, buy_price: {buy_price})")
+    if not units:
+        units = size / buy_price if buy_price > 0 else 0
+        logging.debug(f"{__name__}: unità acquistate: {units} (size: {size}, buy_price: {buy_price})")
 
     # query al database
     execute_query("INSERT INTO positions (etoro_id, symbol, opened, buy_price, size, units) VALUES (?, ?, ?, ?, ?, ?)", 
                   (etoro_id, symbol, date_opened, buy_price, size, units))
 
 # chiudo una posizione sul database
-def close_position( id, date_closed = None, sell_price = None ):
+def close_position( id, date_closed = None, sell_price = None, profit = None ):
     
     # log
     logging.debug(f"{__name__}: chiudo posizione id {id} - date_closed: {date_closed}, sell_price: {sell_price}")
@@ -195,6 +196,42 @@ def get_price( symbol, date = None ):
                 return None
     except Exception as e:
         logging.error(f"{__name__}: errore durante l'ottenimento del prezzo di {symbol}: {e}")
+
+# recupero il simbolo Yahoo Finance associato a un simbolo di strumento finanziario
+def get_yf_symbol( symbol ):
+    
+    # log
+    logging.debug(f"{__name__}: recupero simbolo Yahoo Finance associato a {symbol}")
+
+    # query al database
+    result = execute_select("SELECT yf_symbol FROM symbols WHERE symbol = ?", (symbol,))
+    if result:
+        return result[0]["yf_symbol"]
+    return None
+
+# trovo l'ID di una posizione aperta in base all'ID di eToro
+def get_position_id_by_etoro_id( etoro_id ):
+    
+    # log
+    logging.debug(f"{__name__}: recupero ID della posizione aperta con ID di eToro {etoro_id}")
+
+    # query al database
+    result = execute_select("SELECT id FROM positions WHERE etoro_id = ? AND closed IS NULL", (etoro_id,))
+    if result:
+        return result[0]["id"]
+    return None
+
+# trovo il simbolo di uno strumento finanziario in base all'ID di eToro
+def get_symbol_by_etoro_position_id( etoro_id ):
+    
+    # log
+    logging.debug(f"{__name__}: recupero simbolo dello strumento finanziario associato alla posizione con ID di eToro {etoro_id}")
+
+    # query al database
+    result = execute_select("SELECT symbol FROM positions WHERE etoro_id = ?", (etoro_id,))
+    if result:
+        return result[0]["symbol"]
+    return None
 
 # elenco degli strumenti finanziari presenti nel database
 def list_symbols():
